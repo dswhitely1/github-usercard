@@ -2,6 +2,17 @@
            (replacing the palceholder with your Github name):
            https://api.github.com/users/<your name>
 */
+const getCard = async url => {
+  try {
+    const response = await axios.get(url);
+    console.log(response.data);
+    return await response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// axios.get('https://api.github.com/users/dswhitely1').then(res => console.log(res.data)).catch(err=>console.log(err));
 
 /* Step 2: Inspect and study the data coming back, this is YOUR 
    github info! You will need to understand the structure of this 
@@ -45,8 +56,62 @@ const followersArray = [];
 </div>
 
 */
+function createGitHubCard (data) {
+  const gitHubCard = document.createElement('div');
+  const gitHubImage = document.createElement('img');
+  const gitHubCardInfo = document.createElement('div');
+  const gitHubName = document.createElement('h3');
+  const gitHubUsername = document.createElement('p');
+  const gitHubLocation = document.createElement('p');
+  const gitHubProfile = document.createElement('p');
+  const gitHubProfileLink = document.createElement('a');
+  const gitHubFollowers = document.createElement('p');
+  const gitHubFollowing = document.createElement('p');
+  const gitHubBio = document.createElement('p');
 
-/* List of LS Instructors Github username's: 
+  gitHubImage.setAttribute('src', data.avatar_url);
+  gitHubCard.appendChild(gitHubImage);
+  gitHubName.textContent = data.name;
+  gitHubUsername.textContent = data.login;
+  gitHubLocation.textContent = data.location;
+  gitHubProfile.textContent = 'Profile: ';
+  gitHubProfileLink.textContent = data.html_url;
+  gitHubProfileLink.setAttribute('href', data.html_url);
+  gitHubFollowers.textContent = `Followers: ${data.followers}`;
+  gitHubFollowing.textContent = `Following: ${data.following}`;
+  gitHubBio.textContent = `Bio: ${data.bio}`;
+
+  gitHubProfile.appendChild(gitHubProfileLink);
+  gitHubCardInfo.appendChild(gitHubName);
+  gitHubCardInfo.appendChild(gitHubUsername);
+  gitHubCardInfo.appendChild(gitHubLocation);
+  gitHubCardInfo.appendChild(gitHubProfile);
+  gitHubCardInfo.appendChild(gitHubFollowers);
+  gitHubCardInfo.appendChild(gitHubFollowing);
+  gitHubCardInfo.appendChild(gitHubBio);
+  gitHubCard.appendChild(gitHubCardInfo);
+
+  gitHubCard.classList.add('card');
+  gitHubCardInfo.classList.add('card-info');
+  gitHubName.classList.add('name');
+  gitHubUsername.classList.add('username');
+
+  return gitHubCard;
+
+}
+
+let cardData;
+const cardsDiv = document.querySelector('.cards');
+getCard('https://api.github.com/users/dswhitely1')
+  .then(data => cardsDiv.appendChild(createGitHubCard(data)))
+  .catch(err => console.log(err.response));
+
+getCard('https://api.github.com/users/dswhitely1/followers')
+  .then(data => data.forEach(follower => getCard(follower.url)
+    .then(eachFollower => cardsDiv.appendChild(createGitHubCard(eachFollower)))
+    .catch(err => console.log(err.response))))
+  .catch(err => console.log(err.response));
+/* List of LS Instructors Github username's:
   tetondan
   dustinmyers
   justsml
